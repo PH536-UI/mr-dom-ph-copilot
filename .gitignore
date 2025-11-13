@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.so
+
+# Virtual environment
+.venv
+venv
+env
+
+# Editor/IDE files
+.vscode/
+.idea/
+
+# Logs and databases
+*.log
+*.sqlite3
+db.sqlite3
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Dependencies
+/node_modules
+
+# Local environment variables
+.env
+.flaskenv
+
+# Docker
+!Dockerfile
+!docker-compose.yml
+
+# N8N
+/n8n-flows/*.json

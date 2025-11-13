@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+langchain
+langgraph
+pydantic
+requests
+# agno (Placeholder - dependência específica do framework Agno)
