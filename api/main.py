@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import os
-from ..agents.greeting_agent import run_greeting_agent
-from ..agents.crm_marketing_agent import run_crm_marketing_agent
+from ..agents.orchestrator_graph import run_orchestrator
 
 app = FastAPI(
     title="Mr. DOM PH Copilot API",
@@ -27,27 +26,15 @@ def process_message(request: MessageRequest):
     """
     # Exemplo de orquestração simples: usar o agente de saudação
     try:
-        # Lógica de orquestração: decide qual agente usar com base na mensagem
-        # Esta é uma lógica simplificada. Em LangGraph/Agno, seria um roteador.
+        # Lógica de orquestração: usa o orquestrador LangGraph para rotear a mensagem
+        agent_response = run_orchestrator(request.message)
         
-        message_lower = request.message.lower()
-        
-        if "olá" in message_lower or "saudação" in message_lower or "oi" in message_lower:
-            agent_response = run_greeting_agent(request.message)
-            agent_used = "Greeting Agent"
-        elif "vtiger" in message_lower or "mautic" in message_lower or "score" in message_lower or "tag" in message_lower or "contato" in message_lower:
-            agent_response = run_crm_marketing_agent(request.message)
-            agent_used = "CRM/Marketing Agent"
-        else:
-            # Fallback para o agente de saudação ou um agente geral
-            agent_response = run_greeting_agent(request.message)
-            agent_used = "Greeting Agent (Fallback)"
-        
+        # O LangGraph já contém a lógica de roteamento e a resposta final
         return {
             "status": "success",
             "user_id": request.user_id,
             "input_message": request.message,
-            "agent_used": agent_used,
+            "agent_used": "LangGraph Orchestrator",
             "agent_response": agent_response
         }
         

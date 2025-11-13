@@ -44,9 +44,13 @@ O ambiente de desenvolvimento é baseado em Python e FastAPI, com orquestração
     OPENAI_API_BASE="https://api.openai.com/v1" # Ajuste se usar outro provedor
     
     # Configurações de acesso ao Vtiger, Mautic, etc.
-    VTIGER_URL="https://crm.exemplo.com"
-    VTIGER_USERNAME="user"
-    VTIGER_PASSWORD="password"
+VTIGER_URL="https://crm.exemplo.com/restapi/v1/vtiger/default" # URL completa para a API REST
+VTIGER_USERNAME="user@email.com" # Email de login
+VTIGER_ACCESS_KEY="sua_access_key" # Chave de acesso gerada no Vtiger
+
+MAUTIC_URL="https://seu_mautic.com/api" # URL base da API Mautic
+MAUTIC_USERNAME="user"
+MAUTIC_PASSWORD="password" # Usar PAT ou OAuth para produção
     ```
 
 ### 2.3. Execução da API (Desenvolvimento)
@@ -64,16 +68,20 @@ uvicorn api.main:app --reload
 *   **Branch Principal:** `master` (Sugestão de renomear para `main` para seguir o padrão moderno)
 *   **Fluxo de Trabalho:** Utilizar o fluxo **GitFlow** simplificado: `feature` branches para desenvolvimento, `master` para produção.
 
-### 3.2. Orquestração e Automação (N8N)
-
+#### 3.2. Orquestração e Automação (N8N)
 *   **Fluxo de Exemplo:** O arquivo `n8n-flows/example_message_flow.json` contém um fluxo básico para integração de mensageria.
 *   **Importação:** O fluxo deve ser importado para a instância do n8n.
 *   **Configuração:** O nó **"Chamar API FastAPI (Agente)"** deve ter a URL da API em execução (`http://<SEU_IP_OU_DOMINIO_FASTAPI>:8000/process_message`) ajustada.
 
-### 3.3. Agentes de IA (LangChain/LangGraph)
+### 3.3. Agentes de IA (LangChain/LangGraph/Agno)
+*   **Localização:** O código dos agentes e do orquestrador reside na pasta `/agents`.
+*   **Orquestração:** A API agora utiliza o **LangGraph** (`agents/orchestrator_graph.py`) para rotear a mensagem para o agente apropriado (`Greeting Agent` ou `CRM/Marketing Agent`).
+*   **Conectores Reais:** Os conectores para Vtiger e Mautic foram implementados em `/integrations` e as Tools em `/agents/tools` foram atualizadas para usá-los.
+*   **Próximo Passo (Agno):** A estrutura do LangGraph serve como base para a futura integração com o **Agno Framework**, que será responsável pela orquestração distribuída e avançada dos agentes.
 
-*   **Localização:** O código dos agentes deve residir na pasta `/agents`.
-*   **Padrão:** Cada agente deve ter sua própria Tool (em `/agents/tools`) e sua lógica de orquestração.
+### 3.4. Conectores (Vtiger e Mautic)
+*   **Vtiger:** O conector (`integrations/vtiger_connector.py`) utiliza autenticação **HTTP Basic Auth** com `VTIGER_USERNAME` e `VTIGER_ACCESS_KEY`.
+*   **Mautic:** O conector (`integrations/mautic_connector.py`) utiliza autenticação **Basic Auth** com `MAUTIC_USERNAME` e `MAUTIC_PASSWORD` (recomenda-se migrar para OAuth 2.0 em produção)..
 
 ## 4. Comunicação e Gestão de Equipe
 
