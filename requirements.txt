@@ -2,6 +2,7 @@ fastapi
 uvicorn
 langchain
 langgraph
+langchain-openai
 pydantic
 requests
 # agno (Placeholder - dependência específica do framework Agno)
