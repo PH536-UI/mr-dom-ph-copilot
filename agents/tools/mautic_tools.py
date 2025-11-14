@@ -5,12 +5,12 @@ from ...integrations.mautic_connector import MauticConnector
 
 # Configuração do Conector (lê variáveis de ambiente)
 MAUTIC_URL = os.getenv("MAUTIC_URL", "https://seu_mautic.com/api")
-MAUTIC_USERNAME = os.getenv("MAUTIC_USERNAME", "seu_usuario")
-MAUTIC_PASSWORD = os.getenv("MAUTIC_PASSWORD", "sua_senha")
+MAUTIC_ACCESS_TOKEN = os.getenv("MAUTIC_ACCESS_TOKEN", "seu_access_token")
 
 # Instância do Conector (será criada apenas uma vez)
 try:
-    mautic_connector = MauticConnector(MAUTIC_URL, MAUTIC_USERNAME, MAUTIC_PASSWORD)
+    # Prioriza o uso do access_token para OAuth 2.0
+    mautic_connector = MauticConnector(MAUTIC_URL, access_token=MAUTIC_ACCESS_TOKEN)
 except Exception as e:
     print(f"Aviso: Não foi possível inicializar o MauticConnector. As Tools podem falhar se as variáveis de ambiente não estiverem configuradas. Erro: {e}")
     mautic_connector = None

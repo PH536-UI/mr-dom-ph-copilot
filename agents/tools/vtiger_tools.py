@@ -21,12 +21,12 @@ def query_vtiger_contact(email: str) -> Dict[str, Any]:
     Consulta o Vtiger CRM para obter informações detalhadas de um contato pelo email.
     Retorna um dicionário com os dados do contato (nome, telefone, score, status).
     """
-    if not vtiger_connector:
-        return {"status": "error", "message": "Vtiger Connector não inicializado. Verifique as variáveis de ambiente."}
+        if not vtiger_connector:
+            return {"status": "error", "message": "Vtiger Connector não inicializado. Verifique as variáveis de ambiente."}
+            
+        result = vtiger_connector.retrieve_by_email(email, module="Contacts")
         
-    result = vtiger_connector.retrieve_by_email(email, module="Contacts")
-    
-    if result.get("success"):
+        if result.get("success"):
         contact = result["result"]
         # Mapeamento simplificado dos campos do Vtiger para o formato esperado pelo Agente
         return {
