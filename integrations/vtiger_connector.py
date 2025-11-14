@@ -38,12 +38,30 @@ class VtigerConnector:
             else:
                 raise ValueError(f"Método HTTP não suportado: {method}")
 
-            response.raise_for_status() # Levanta exceção para códigos de status HTTP 4xx/5xx
+            # O Vtiger sempre retorna 200 OK, mesmo em caso de erro de API,
+            # mas o JSON de resposta terá "success": false.
+            # Se o status HTTP não for 200, tratamos como erro de conexão/servidor.
+            response.raise_for_status() 
             
-            return response.json()
+            response_json = response.json()
+            
+            if not response_json.get("success"):
+                # Erro de API Vtiger (ex: sintaxe VQL incorreta, módulo inexistente)
+                error_info = response_json.get("error", {})
+                error_message = error_info.get("message", "Erro desconhecido da API Vtiger.")
+                error_code = error_info.get("code", "VTIGER_UNKNOWN_ERROR")
+                return {"success": False, "error": f"Erro da API Vtiger ({error_code}): {error_message}", "status_code": response.status_code}
+            
+            return response_json
 
         except requests.exceptions.HTTPError as errh:
-            return {"success": False, "error": f"Erro HTTP: {errh}", "status_code": response.status_code}
+            # Erro de HTTP (ex: 401 Unauthorized, 500 Internal Server Error)
+            try:
+                # Tenta ler o erro detalhado do corpo, se disponível
+                error_detail = response.json().get("error", {}).get("message", response.text)
+            except:
+                error_detail = response.text
+            return {"success": False, "error": f"Erro HTTP: {errh}. Detalhe: {error_detail}", "status_code": response.status_code}
         except requests.exceptions.ConnectionError as errc:
             return {"success": False, "error": f"Erro de Conexão: {errc}"}
         except requests.exceptions.Timeout as errt:
@@ -53,23 +71,79 @@ class VtigerConnector:
         except ValueError as e:
             return {"success": False, "error": str(e)}
 
-    def query(self, query_string: str) -> Dict[str, Any]:
+    def query(self, query_string: str, page_size: int = 100) -> Dict[str, Any]:
         """
         Executa uma consulta VQL (Vtiger Query Language).
+        A API Vtiger limita o resultado a 100 registros por padrão.
+        Este método retorna apenas a primeira página. Para todas as páginas, use query_all.
         """
+        # A API Vtiger usa LIMIT e OFFSET dentro da string VQL.
+        # Não há parâmetros de paginação separados na requisição GET.
+        # A string VQL deve incluir LIMIT e OFFSET para paginação manual.
+        
+        # Para simplificar o uso pelo Agente, vamos assumir que a string VQL
+        # já contém o LIMIT e OFFSET, ou que o Agente só precisa da primeira página.
+        # Se o Agente precisar de mais, ele deve usar o método query_all.
+        
         return self._request("GET", "query", {"query": query_string})
+
+    def query_all(self, base_query: str) -> Dict[str, Any]:
+        """
+        Executa uma consulta VQL e itera automaticamente para buscar todos os resultados.
+        A base_query deve ser a consulta VQL SEM as cláusulas LIMIT e OFFSET.
+        """
+        all_results = []
+        offset = 0
+        page_size = 100 # Limite máximo por página na API Vtiger
+        
+        while True:
+            # Adiciona LIMIT e OFFSET à consulta base
+            paginated_query = f"{base_query.rstrip(';')} LIMIT {offset}, {page_size};"
+            
+            print(f"Executando VQL paginada: {paginated_query}")
+            
+            result = self._request("GET", "query", {"query": paginated_query})
+            
+            if not result.get("success"):
+                # Retorna o erro se a consulta falhar
+                return result
+            
+            current_page_results = result.get("result", [])
+            all_results.extend(current_page_results)
+            
+            # Se o número de resultados for menor que o tamanho da página, é a última página
+            if len(current_page_results) < page_size:
+                break
+            
+            offset += page_size
+            
+            # Limite de segurança para evitar loops infinitos em caso de erro de lógica
+            if offset > 10000: # Limite de 10000 registros para evitar sobrecarga
+                print("Aviso: Limite de 10000 registros atingido na paginação do Vtiger.")
+                break
+                
+        return {"success": True, "result": all_results}
 
     def retrieve_by_email(self, email: str, module: str = "Contacts") -> Dict[str, Any]:
         """
         Busca um registro pelo email.
         """
+        # Usamos query_all para garantir que, se houver mais de um, todos sejam retornados,
+        # mas a VQL já deve ser otimizada para buscar apenas 1.
+        # A VQL com LIMIT 1 é a forma mais eficiente.
         query_string = f"SELECT * FROM {module} WHERE email = '{email}' LIMIT 1;"
         result = self.query(query_string)
         
-        if result.get("success") and result.get("result"):
+        if not result.get("success"):
+            # Propaga o erro detalhado da API
+            return {"success": False, "error": result.get("error", "Erro desconhecido na consulta.")}
+            
+        if result.get("result"):
+            # Encontrou o contato
             return {"success": True, "result": result["result"][0]}
         
-        return {"success": False, "error": "Contato não encontrado ou erro na consulta."}
+        # Não encontrou o contato
+        return {"success": False, "error": f"Nenhum registro de {module} encontrado com o email: {email}."}
 
     def update(self, record_id: str, values: Dict[str, Any]) -> Dict[str, Any]:
         """

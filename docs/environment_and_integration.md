@@ -81,6 +81,14 @@ uvicorn api.main:app --reload
 *   **Próximo Passo:** O Agno está pronto para ser expandido para orquestração distribuída e multi-agente, aproveitando a arquitetura modular já estabelecida.es.
 
 ### 3.4. Conectores (Vtiger e Mautic)
+
+#### Testes Unitários
+
+*   Os testes unitários mock para os conectores Vtiger e Mautic estão localizados na pasta `/tests`.
+*   Para executar os testes, use o comando: `python3 -m unittest discover tests`
+*   **Dependências:** Certifique-se de que `requests` e `unittest.mock` (já incluído no Python 3.3+) estejam disponíveis.
+
+### 3.5. Variáveis de Ambiente (Atualizado)
 *   **Vtiger:** O conector (`integrations/vtiger_connector.py`) utiliza autenticação **HTTP Basic Auth** com `VTIGER_USERNAME` e `VTIGER_ACCESS_KEY`.
 *   **Mautic:** O conector (`integrations/mautic_connector.py`) utiliza autenticação **Basic Auth** com `MAUTIC_USERNAME` e `MAUTIC_PASSWORD` (recomenda-se migrar para OAuth 2.0 em produção)..
 
