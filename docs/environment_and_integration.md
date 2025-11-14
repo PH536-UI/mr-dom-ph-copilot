@@ -90,7 +90,8 @@ uvicorn api.main:app --reload
 
 ### 3.5. Variáveis de Ambiente (Atualizado)
 *   **Vtiger:** O conector (`integrations/vtiger_connector.py`) utiliza autenticação **HTTP Basic Auth** com `VTIGER_USERNAME` e `VTIGER_ACCESS_KEY`.
-*   **Mautic:** O conector (`integrations/mautic_connector.py`) utiliza autenticação **Basic Auth** com `MAUTIC_USERNAME` e `MAUTIC_PASSWORD` (recomenda-se migrar para OAuth 2.0 em produção)..
+*   **Mautic:** O conector (`integrations/mautic_connector.py`) foi atualizado para suportar autenticação **OAuth 2.0** (via `MAUTIC_ACCESS_TOKEN`) ou **Basic Auth** (via `MAUTIC_USERNAME` e `MAUTIC_PASSWORD`) como fallback. **Recomenda-se o uso de OAuth 2.0 em produção.**
+*   **Testes Unitários:** Os testes unitários mock para o conector Mautic estão localizados em `/tests/test_mautic_connector.py`.
 
 ## 4. Comunicação e Gestão de Equipe
 
