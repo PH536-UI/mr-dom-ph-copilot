@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import os
-from ..agents.orchestrator_graph import run_orchestrator
+from ..agents.main_agno_agent import run_main_agno_agent
 
 app = FastAPI(
     title="Mr. DOM PH Copilot API",
@@ -26,15 +26,15 @@ def process_message(request: MessageRequest):
     """
     # Exemplo de orquestração simples: usar o agente de saudação
     try:
-        # Lógica de orquestração: usa o orquestrador LangGraph para rotear a mensagem
-        agent_response = run_orchestrator(request.message)
+        # Lógica de orquestração: usa o Agno Agent principal para orquestrar a mensagem
+        agent_response = run_main_agno_agent(request.message)
         
-        # O LangGraph já contém a lógica de roteamento e a resposta final
+        # O Agno Agent já contém a lógica de roteamento e a resposta final
         return {
             "status": "success",
             "user_id": request.user_id,
             "input_message": request.message,
-            "agent_used": "LangGraph Orchestrator",
+            "agent_used": "Agno Main Agent (via LangGraph)",
             "agent_response": agent_response
         }
         

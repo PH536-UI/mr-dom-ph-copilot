@@ -73,11 +73,12 @@ uvicorn api.main:app --reload
 *   **Importação:** O fluxo deve ser importado para a instância do n8n.
 *   **Configuração:** O nó **"Chamar API FastAPI (Agente)"** deve ter a URL da API em execução (`http://<SEU_IP_OU_DOMINIO_FASTAPI>:8000/process_message`) ajustada.
 
-### 3.3. Agentes de IA (LangChain/LangGraph/Agno)
+##### 3.3. Agentes de IA (Agno/LangGraph)
 *   **Localização:** O código dos agentes e do orquestrador reside na pasta `/agents`.
-*   **Orquestração:** A API agora utiliza o **LangGraph** (`agents/orchestrator_graph.py`) para rotear a mensagem para o agente apropriado (`Greeting Agent` ou `CRM/Marketing Agent`).
+*   **Orquestração Principal (Agno):** A API agora chama o **Agno Main Agent** (`agents/main_agno_agent.py`), que atua como o ponto de entrada para a orquestração distribuída.
+*   **Orquestração Secundária (LangGraph):** O Agno Agent delega a lógica de roteamento e execução dos agentes de CRM/Marketing ao **LangGraph** (`agents/orchestrator_graph.py`), que agora é uma Tool dentro do Agno.
 *   **Conectores Reais:** Os conectores para Vtiger e Mautic foram implementados em `/integrations` e as Tools em `/agents/tools` foram atualizadas para usá-los.
-*   **Próximo Passo (Agno):** A estrutura do LangGraph serve como base para a futura integração com o **Agno Framework**, que será responsável pela orquestração distribuída e avançada dos agentes.
+*   **Próximo Passo:** O Agno está pronto para ser expandido para orquestração distribuída e multi-agente, aproveitando a arquitetura modular já estabelecida.es.
 
 ### 3.4. Conectores (Vtiger e Mautic)
 *   **Vtiger:** O conector (`integrations/vtiger_connector.py`) utiliza autenticação **HTTP Basic Auth** com `VTIGER_USERNAME` e `VTIGER_ACCESS_KEY`.
