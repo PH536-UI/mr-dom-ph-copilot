@@ -93,6 +93,31 @@ uvicorn api.main:app --reload
 *   **Mautic:** O conector (`integrations/mautic_connector.py`) foi atualizado para suportar autenticação **OAuth 2.0** (via `MAUTIC_ACCESS_TOKEN`) ou **Basic Auth** (via `MAUTIC_USERNAME` e `MAUTIC_PASSWORD`) como fallback. **Recomenda-se o uso de OAuth 2.0 em produção.**
 *   **Testes Unitários:** Os testes unitários mock para o conector Mautic estão localizados em `/tests/test_mautic_connector.py`.
 
+## 3.6. Memori - Memória Persistente e Contexto Consciente
+
+O sistema agora integra o **Memori SDK** para fornecer memória persistente e contexto consciente às conversas dos agentes.
+
+#### Características Principais
+
+- **Contexto Persistente:** O sistema lembra de conversas anteriores
+- **Conversas Multi-turno:** Suporta longas conversas com múltiplas trocas
+- **Endpoints de Memória:** `/memory/status`, `/memory/conversation`, `/memory/clear`, `/memory/export`
+- **Integração Automática:** Memori é automaticamente inicializado na API
+
+#### Configuração
+
+Adicione ao arquivo `.env`:
+
+```ini
+OPENAI_API_KEY="sua_chave_openai_aqui"
+MEMORI_CONSCIOUS_INGEST=true
+MEMORI_ENABLE_LOGGING=true
+```
+
+#### Documentação Completa
+
+Consulte o arquivo `docs/memori_integration_guide.md` para guia detalhado de uso.
+
 ## 4. Comunicação e Gestão de Equipe
 
 | Ferramenta | Finalidade | Diretrizes |

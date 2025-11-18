@@ -6,3 +6,5 @@ langchain-openai
 pydantic
 requests
 agno
+memorisdk
+openai
